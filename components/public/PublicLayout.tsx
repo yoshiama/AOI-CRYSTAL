@@ -1,18 +1,18 @@
-import { getDb } from '@/lib/db';
 import Navbar from './Navbar';
 
-function getSetting(key: string, fallback: string): string {
+async function getSettings() {
   try {
-    const db = getDb();
-    const row = db.prepare('SELECT value FROM settings WHERE key = ?').get(key) as { value: string } | undefined;
-    return row?.value || fallback;
-  } catch { return fallback; }
+    const res = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/api/settings`, { cache: 'no-store' });
+    if (res.ok) return await res.json();
+  } catch {}
+  return {};
 }
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
-  const email = getSetting('contact_email', 'aoicrystalor@gmail.com');
-  const instagram = getSetting('contact_instagram', 'aoicrystal');
-  const shopName = getSetting('shop_name', 'AOI Crystal');
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
+  const s = await getSettings();
+  const email = s.contact_email || 'aoicrystalor@gmail.com';
+  const instagram = s.contact_instagram || 'aoicrystal';
+  const shopName = s.shop_name || 'AOI Crystal';
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
