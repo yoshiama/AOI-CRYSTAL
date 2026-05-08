@@ -29,6 +29,7 @@ export default function OrderDetail({ order, onClose, onUpdate }: {
   const [materialCost, setMaterialCost] = useState(order.material_cost?.toString() || '0');
   const [saving, setSaving] = useState(false);
   const [editingItems, setEditingItems] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [items, setItems] = useState<OrderItem[]>(JSON.parse(order.items || '[]'));
   const [shipping, setShipping] = useState(order.shipping);
 
@@ -199,12 +200,29 @@ export default function OrderDetail({ order, onClose, onUpdate }: {
             />
           </div>
 
-          <div className="flex gap-3">
-            <button onClick={onClose} className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm hover:bg-gray-50">Cancelar</button>
-            <button onClick={handleSave} disabled={saving} className="flex-1 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50">
-              {saving ? 'Guardando...' : 'Guardar cambios'}
-            </button>
-          </div>
+          {confirmDelete ? (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4 space-y-3">
+              <p className="text-sm font-medium text-red-700">¿Eliminar este pedido? Esta acción no se puede deshacer.</p>
+              <div className="flex gap-3">
+                <button onClick={() => setConfirmDelete(false)} className="flex-1 border border-gray-200 rounded-xl py-2 text-sm hover:bg-gray-50">Cancelar</button>
+                <button
+                  onClick={async () => {
+                    await fetch(`/api/orders/${order.id}`, { method: 'DELETE' });
+                    onUpdate();
+                  }}
+                  className="flex-1 bg-red-500 text-white rounded-xl py-2 text-sm font-medium hover:bg-red-600"
+                >Sí, eliminar</button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmDelete(true)} className="px-4 py-2.5 border border-red-200 text-red-500 rounded-xl text-sm hover:bg-red-50">🗑️ Eliminar</button>
+              <button onClick={onClose} className="flex-1 border border-gray-200 rounded-xl py-2.5 text-sm hover:bg-gray-50">Cancelar</button>
+              <button onClick={handleSave} disabled={saving} className="flex-1 bg-gradient-to-r from-purple-600 to-pink-500 text-white rounded-xl py-2.5 text-sm font-medium hover:opacity-90 disabled:opacity-50">
+                {saving ? 'Guardando...' : 'Guardar cambios'}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>

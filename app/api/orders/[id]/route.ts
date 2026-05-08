@@ -71,3 +71,15 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
   return NextResponse.json({ success: true });
 }
+
+export async function DELETE(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const session = await getSessionFromCookies();
+  if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
+  const { id } = await params;
+  const db = getDb();
+  const order = db.prepare('SELECT order_number FROM orders WHERE id = ?').get(id) as { order_number: string } | undefined;
+  if (!order) return NextResponse.json({ error: 'No encontrado' }, { status: 404 });
+  db.prepare('DELETE FROM orders WHERE id = ?').run(id);
+  logActivity(`Pedido eliminado`, 'orders', parseInt(id), order.order_number);
+  return NextResponse.json({ success: true });
+}
