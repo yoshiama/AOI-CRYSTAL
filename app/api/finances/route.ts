@@ -7,7 +7,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
   const db = getDb();
-  const orders = db.prepare("SELECT * FROM orders WHERE status != 'cancelado' ORDER BY created_at DESC").all() as Array<{
+  const orders = db.prepare("SELECT * FROM orders WHERE status = 'enviado' ORDER BY created_at DESC").all() as Array<{
     id: number; order_number: string; customer_name: string; total: number; material_cost: number; created_at: number; status: string;
   }>;
 
