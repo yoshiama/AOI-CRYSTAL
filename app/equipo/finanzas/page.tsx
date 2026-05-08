@@ -94,9 +94,10 @@ export default function FinanzasPage() {
     setExporting(false);
   }
 
-  const netProfit = totals ? totals.all.profit - totalExpenses : 0;
-  const forEmployees = netProfit * (splitEmployees / 100);
-  const forCompany = netProfit * (splitCompany / 100);
+  const grossProfit = totals ? totals.all.profit : 0;
+  const forEmployees = grossProfit * (splitEmployees / 100);
+  const forCompanyGross = grossProfit * (splitCompany / 100);
+  const forCompanyNet = forCompanyGross - totalExpenses;
 
   return (
     <PanelLayout>
@@ -126,25 +127,40 @@ export default function FinanzasPage() {
         {totals && (
           <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <h3 className="font-semibold text-gray-800 mb-4">Reparto de beneficios</h3>
-            <div className="bg-gray-50 rounded-xl p-3 text-sm text-gray-500 mb-4 flex justify-between">
-              <span>Beneficio total pedidos</span><span className="font-medium text-gray-800">€{totals.all.profit.toFixed(2)}</span>
+
+            {/* Total */}
+            <div className="bg-gray-50 rounded-xl px-4 py-3 flex justify-between items-center mb-5">
+              <span className="text-sm text-gray-500">Beneficio total (pedidos enviados)</span>
+              <span className="font-bold text-gray-800 text-lg">€{grossProfit.toFixed(2)}</span>
             </div>
-            <div className="bg-orange-50 rounded-xl p-3 text-sm text-orange-700 mb-4 flex justify-between">
-              <span>— Compras de la empresa</span><span className="font-medium">€{totalExpenses.toFixed(2)}</span>
-            </div>
-            <div className="bg-green-50 rounded-xl p-3 text-sm font-semibold text-green-800 mb-5 flex justify-between">
-              <span>= Beneficio neto repartible</span><span>€{netProfit.toFixed(2)}</span>
-            </div>
+
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-purple-50 rounded-2xl p-4 text-center">
-                <div className="text-xs text-purple-500 mb-1">{splitEmployees}% Empleadas</div>
-                <div className="text-2xl font-bold text-purple-700">€{forEmployees.toFixed(2)}</div>
-                <div className="text-xs text-purple-400 mt-1">€{(forEmployees / 2).toFixed(2)} por persona</div>
+              {/* Empleadas */}
+              <div className="bg-purple-50 rounded-2xl p-5 border border-purple-100">
+                <div className="text-xs font-semibold text-purple-500 uppercase tracking-wide mb-3">{splitEmployees}% Empleadas</div>
+                <div className="text-3xl font-bold text-purple-700 mb-1">€{forEmployees.toFixed(2)}</div>
+                <div className="text-sm text-purple-400">€{(forEmployees / 2).toFixed(2)} por persona</div>
               </div>
-              <div className="bg-blue-50 rounded-2xl p-4 text-center">
-                <div className="text-xs text-blue-500 mb-1">{splitCompany}% Empresa</div>
-                <div className="text-2xl font-bold text-blue-700">€{forCompany.toFixed(2)}</div>
-                <div className="text-xs text-blue-400 mt-1">Para compras y materiales</div>
+
+              {/* Empresa */}
+              <div className="bg-blue-50 rounded-2xl p-5 border border-blue-100">
+                <div className="text-xs font-semibold text-blue-500 uppercase tracking-wide mb-3">{splitCompany}% Empresa</div>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between text-blue-700">
+                    <span>Bruto</span>
+                    <span className="font-semibold">€{forCompanyGross.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-orange-600">
+                    <span>— Gastos</span>
+                    <span className="font-semibold">€{totalExpenses.toFixed(2)}</span>
+                  </div>
+                  <div className="border-t border-blue-200 pt-2 flex justify-between">
+                    <span className="font-bold text-blue-800">Saldo disponible</span>
+                    <span className={`font-bold text-lg ${forCompanyNet >= 0 ? 'text-blue-700' : 'text-red-500'}`}>
+                      €{forCompanyNet.toFixed(2)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
