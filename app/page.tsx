@@ -15,8 +15,7 @@ export default function Home() {
       {/* Hero */}
       <section className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-20 px-6 text-center">
         <div className="max-w-2xl mx-auto">
-          <div className="text-6xl mb-5">✨</div>
-          <h1 className="text-5xl font-bold text-gray-800 mb-4 leading-tight">AOI Crystal</h1>
+          <img src="/logo.png" alt="AOI Crystal" className="h-48 w-auto object-contain mx-auto mb-6" />
           <p className="text-2xl text-purple-500 font-medium mb-3">Accesorios de resina artesanos</p>
           <p className="text-gray-500 mb-8 text-lg">Piezas únicas hechas a mano con mucho cariño, personalizadas para ti.</p>
           <div className="flex gap-3 justify-center flex-wrap">
