@@ -1,18 +1,19 @@
+'use client';
+import { useEffect, useState } from 'react';
 import Navbar from './Navbar';
 
-async function getSettings() {
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/api/settings`, { cache: 'no-store' });
-    if (res.ok) return await res.json();
-  } catch {}
-  return {};
-}
+export default function PublicLayout({ children }: { children: React.ReactNode }) {
+  const [email, setEmail] = useState('aoicrystalor@gmail.com');
+  const [instagram, setInstagram] = useState('aoicrystal');
+  const [shopName, setShopName] = useState('AOI Crystal');
 
-export default async function PublicLayout({ children }: { children: React.ReactNode }) {
-  const s = await getSettings();
-  const email = s.contact_email || 'aoicrystalor@gmail.com';
-  const instagram = s.contact_instagram || 'aoicrystal';
-  const shopName = s.shop_name || 'AOI Crystal';
+  useEffect(() => {
+    fetch('/api/settings').then(r => r.json()).then(s => {
+      if (s.contact_email) setEmail(s.contact_email);
+      if (s.contact_instagram) setInstagram(s.contact_instagram);
+      if (s.shop_name) setShopName(s.shop_name);
+    }).catch(() => {});
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
