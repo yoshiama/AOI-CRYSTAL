@@ -19,11 +19,11 @@ export default function Navbar() {
       <nav className="sticky top-0 z-40 bg-white/90 backdrop-blur-sm border-b border-purple-100">
         <div className="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            {logoUrl ? (
-              <img src={logoUrl} alt="AOI Crystal" className="h-9 w-auto object-contain" />
-            ) : (
-              <span className="text-xl font-bold text-purple-700">✨ AOI Crystal</span>
-            )}
+            <img
+              src={logoUrl || '/logo.png'}
+              alt="AOI Crystal"
+              className="h-12 w-auto object-contain"
+            />
           </Link>
           <div className="flex items-center gap-6 text-sm font-medium text-gray-600">
             <Link href="/catalogo" className="hover:text-purple-600 transition">Catálogo</Link>
