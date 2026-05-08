@@ -33,6 +33,10 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   if (data.internal_notes !== undefined) { fields.push('internal_notes = ?'); values.push(data.internal_notes); }
   if (data.material_cost !== undefined) { fields.push('material_cost = ?'); values.push(data.material_cost); }
   if (data.bizum_screenshot !== undefined) { fields.push('bizum_screenshot = ?'); values.push(data.bizum_screenshot); }
+  if (data.items !== undefined) { fields.push('items = ?'); values.push(data.items); }
+  if (data.subtotal !== undefined) { fields.push('subtotal = ?'); values.push(data.subtotal); }
+  if (data.shipping !== undefined) { fields.push('shipping = ?'); values.push(data.shipping); }
+  if (data.total !== undefined) { fields.push('total = ?'); values.push(data.total); }
   fields.push('updated_at = ?'); values.push(now);
   values.push(parseInt(id));
 

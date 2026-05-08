@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 
+interface OrderItem { name: string; qty?: number; price?: number; options?: string }
+
 interface Order {
   id: number; order_number: string; customer_name: string; customer_email: string;
   customer_phone: string; customer_address: string; customer_postal: string;
@@ -26,20 +28,37 @@ export default function OrderDetail({ order, onClose, onUpdate }: {
   const [notes, setNotes] = useState(order.internal_notes || '');
   const [materialCost, setMaterialCost] = useState(order.material_cost?.toString() || '0');
   const [saving, setSaving] = useState(false);
-  const items = JSON.parse(order.items || '[]');
+  const [editingItems, setEditingItems] = useState(false);
+  const [items, setItems] = useState<OrderItem[]>(JSON.parse(order.items || '[]'));
+  const [shipping, setShipping] = useState(order.shipping);
+
+  const itemsTotal = items.reduce((s, i) => s + (i.price || 0) * (i.qty || 1), 0);
+  const total = itemsTotal + shipping;
+  const profit = total - (parseFloat(materialCost) || 0);
+
+  function updateItem(idx: number, field: keyof OrderItem, value: string | number) {
+    setItems(prev => prev.map((item, i) => i === idx ? { ...item, [field]: value } : item));
+  }
+
+  function removeItem(idx: number) {
+    setItems(prev => prev.filter((_, i) => i !== idx));
+  }
 
   async function handleSave() {
     setSaving(true);
     await fetch(`/api/orders/${order.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status, internal_notes: notes, material_cost: parseFloat(materialCost) || 0 }),
+      body: JSON.stringify({
+        status,
+        internal_notes: notes,
+        material_cost: parseFloat(materialCost) || 0,
+        ...(editingItems ? { items: JSON.stringify(items), shipping, subtotal: itemsTotal, total } : {}),
+      }),
     });
     setSaving(false);
     onUpdate();
   }
-
-  const profit = order.total - (parseFloat(materialCost) || 0);
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-start justify-center z-50 overflow-y-auto py-8">
@@ -67,26 +86,61 @@ export default function OrderDetail({ order, onClose, onUpdate }: {
 
           {/* Items */}
           <div>
-            <h3 className="font-medium text-gray-800 text-sm mb-2">Productos encargados</h3>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-medium text-gray-800 text-sm">Productos encargados</h3>
+              <button
+                onClick={() => setEditingItems(!editingItems)}
+                className="text-xs text-purple-600 hover:underline font-medium"
+              >{editingItems ? '✓ Confirmar cambios' : '✏️ Modificar'}</button>
+            </div>
+
             <div className="space-y-2">
-              {items.map((item: { name: string; qty?: number; price?: number; options?: string }, i: number) => (
-                <div key={i} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5 text-sm">
-                  <div>
+              {items.map((item, i) => (
+                <div key={i} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5 text-sm gap-2">
+                  <div className="flex-1 min-w-0">
                     <span className="font-medium text-gray-800">{item.name}</span>
                     {item.options && <span className="text-gray-400 ml-2 text-xs">({item.options})</span>}
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-gray-500">x{item.qty || 1}</span>
-                    <span className="font-medium">€{((item.price || 0) * (item.qty || 1)).toFixed(2)}</span>
-                  </div>
+                  {editingItems ? (
+                    <div className="flex items-center gap-2 shrink-0">
+                      <label className="text-xs text-gray-500">x</label>
+                      <input
+                        type="number" min="1" value={item.qty || 1}
+                        onChange={e => updateItem(i, 'qty', parseInt(e.target.value) || 1)}
+                        className="w-12 border border-gray-200 rounded-lg px-2 py-1 text-xs text-center"
+                      />
+                      <label className="text-xs text-gray-500">€</label>
+                      <input
+                        type="number" min="0" step="0.01" value={item.price || 0}
+                        onChange={e => updateItem(i, 'price', parseFloat(e.target.value) || 0)}
+                        className="w-16 border border-gray-200 rounded-lg px-2 py-1 text-xs text-center"
+                      />
+                      <button onClick={() => removeItem(i)} className="text-red-400 hover:text-red-600 text-sm">✕</button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-gray-500">x{item.qty || 1}</span>
+                      <span className="font-medium">€{((item.price || 0) * (item.qty || 1)).toFixed(2)}</span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
+
             <div className="flex justify-between text-sm mt-2 px-4">
-              <span className="text-gray-500">Envío</span><span>€{order.shipping.toFixed(2)}</span>
+              <span className="text-gray-500">Envío</span>
+              {editingItems ? (
+                <input
+                  type="number" min="0" step="0.01" value={shipping}
+                  onChange={e => setShipping(parseFloat(e.target.value) || 0)}
+                  className="w-16 border border-gray-200 rounded-lg px-2 py-1 text-xs text-center"
+                />
+              ) : (
+                <span>€{shipping.toFixed(2)}</span>
+              )}
             </div>
             <div className="flex justify-between font-bold text-base mt-1 px-4 text-purple-700">
-              <span>Total</span><span>€{order.total.toFixed(2)}</span>
+              <span>Total</span><span>€{total.toFixed(2)}</span>
             </div>
           </div>
 

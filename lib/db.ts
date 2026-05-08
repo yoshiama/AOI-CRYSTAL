@@ -94,6 +94,15 @@ function initDb(db: Database.Database) {
       value TEXT,
       updated_at INTEGER DEFAULT (strftime('%s','now'))
     );
+
+    CREATE TABLE IF NOT EXISTS expenses (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      description TEXT NOT NULL,
+      amount REAL NOT NULL,
+      category TEXT DEFAULT 'material',
+      expense_date INTEGER DEFAULT (strftime('%s','now')),
+      created_at INTEGER DEFAULT (strftime('%s','now'))
+    );
   `);
 
   // Seed default settings if not exists
@@ -110,6 +119,9 @@ function initDb(db: Database.Database) {
     ins.run('shipping_baleares', '7.00');
     ins.run('shipping_canarias', '9.00');
     ins.run('free_shipping_threshold', '30');
+    ins.run('logo_url', '');
+    ins.run('split_employees', '70');
+    ins.run('split_company', '30');
   }
 
   // Seed admin user if not exists

@@ -32,6 +32,21 @@ const SECTIONS: { title: string; icon: string; fields: Field[] }[] = [
     ],
   },
   {
+    title: 'Logo de la tienda',
+    icon: '🖼️',
+    fields: [
+      { key: 'logo_url', label: 'URL del logo (imagen de internet o subida)', type: 'text' },
+    ],
+  },
+  {
+    title: 'Reparto de beneficios',
+    icon: '💰',
+    fields: [
+      { key: 'split_employees', label: '% para empleadas', type: 'text' },
+      { key: 'split_company', label: '% para empresa', type: 'text' },
+    ],
+  },
+  {
     title: 'Gastos de envío',
     icon: '📦',
     fields: [

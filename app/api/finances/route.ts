@@ -11,7 +11,18 @@ export async function GET() {
     id: number; order_number: string; customer_name: string; total: number; material_cost: number; created_at: number; status: string;
   }>;
 
-  const now = Math.floor(Date.now() / 1000);
+  const expenses = db.prepare('SELECT * FROM expenses ORDER BY expense_date DESC').all() as Array<{
+    id: number; description: string; amount: number; category: string; expense_date: number;
+  }>;
+
+  const totalExpenses = expenses.reduce((s, e) => s + e.amount, 0);
+
+  const settings = db.prepare("SELECT key, value FROM settings WHERE key IN ('split_employees','split_company')").all() as { key: string; value: string }[];
+  const splitMap: Record<string, number> = {};
+  for (const s of settings) splitMap[s.key] = parseFloat(s.value) || 0;
+  const splitEmployees = splitMap['split_employees'] ?? 70;
+  const splitCompany = splitMap['split_company'] ?? 30;
+
   const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
   const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - 7);
   const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0, 0, 0, 0);
@@ -41,5 +52,5 @@ export async function GET() {
     if (o.created_at >= prevMonthTs && o.created_at < monthTs) { totals.prevMonth.revenue += o.total; totals.prevMonth.cost += o.material_cost || 0; totals.prevMonth.profit += profit; }
   });
 
-  return NextResponse.json({ orders, totals });
+  return NextResponse.json({ orders, totals, expenses, totalExpenses, splitEmployees, splitCompany });
 }
