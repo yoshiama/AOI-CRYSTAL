@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# SQLite - the DB is created automatically on first run
+/data/*.db
+/data/*.db-shm
+/data/*.db-wal
+
+# Uploads (user files - not tracked in git)
+/public/uploads/*
+!/public/uploads/.gitkeep
