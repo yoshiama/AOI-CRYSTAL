@@ -23,7 +23,7 @@ export default function SobreNosotrasPage() {
         <div className="text-center mb-12">
           <div className="text-6xl mb-4">🌸</div>
           <h1 className="text-4xl font-bold text-gray-800 mb-3">Sobre nosotras</h1>
-          <p className="text-purple-500 text-lg">Dos personas, mucho cariño y mucha resina</p>
+          <p className="text-purple-500 text-lg">Tres personas, mucho cariño y mucha resina</p>
         </div>
 
         <div className="prose prose-lg max-w-none">
