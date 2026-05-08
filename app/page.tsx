@@ -9,6 +9,8 @@ export default function Home() {
   const featured = db.prepare('SELECT * FROM products WHERE visible = 1 ORDER BY created_at DESC LIMIT 4').all() as Array<{
     id: number; name: string; category: string; price: number; photos: string; description: string;
   }>;
+  const instagramRow = db.prepare("SELECT value FROM settings WHERE key = 'contact_instagram'").get() as { value: string } | undefined;
+  const instagram = instagramRow?.value || 'aoicrystal';
 
   return (
     <PublicLayout>
@@ -83,12 +85,12 @@ export default function Home() {
       <section className="py-12 px-6 text-center">
         <p className="text-gray-500 mb-3">¿Nos sigues en Instagram?</p>
         <a
-          href="https://instagram.com/aoicrystal"
+          href={`https://instagram.com/${instagram}`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:opacity-90 transition"
         >
-          📸 @aoicrystal
+          📸 @{instagram}
         </a>
       </section>
     </PublicLayout>
