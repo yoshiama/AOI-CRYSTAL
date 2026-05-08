@@ -1,11 +1,20 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PublicLayout from '@/components/public/PublicLayout';
 
 export default function ContactoPage() {
   const [form, setForm] = useState({ name: '', email: '', message: '' });
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState('aoicrystalor@gmail.com');
+  const [instagram, setInstagram] = useState('aoicrystal');
+
+  useEffect(() => {
+    fetch('/api/settings').then(r => r.json()).then(s => {
+      if (s.contact_email) setEmail(s.contact_email);
+      if (s.contact_instagram) setInstagram(s.contact_instagram);
+    }).catch(() => {});
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,11 +42,11 @@ export default function ContactoPage() {
             <div className="bg-purple-50 rounded-2xl p-5">
               <h3 className="font-semibold text-gray-800 mb-3">Contacta con nosotras</h3>
               <div className="space-y-3 text-sm">
-                <a href="mailto:aoicrystalor@gmail.com" className="flex items-center gap-3 text-purple-700 hover:underline">
-                  <span className="text-xl">📧</span> aoicrystalor@gmail.com
+                <a href={`mailto:${email}`} className="flex items-center gap-3 text-purple-700 hover:underline">
+                  <span className="text-xl">📧</span> {email}
                 </a>
-                <a href="https://instagram.com/aoicrystal" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-pink-600 hover:underline">
-                  <span className="text-xl">📸</span> @aoicrystal
+                <a href={`https://instagram.com/${instagram}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-pink-600 hover:underline">
+                  <span className="text-xl">📸</span> @{instagram}
                 </a>
               </div>
             </div>

@@ -2,6 +2,8 @@ import { getDb } from '@/lib/db';
 import PublicLayout from '@/components/public/PublicLayout';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 function getSetting(key: string, fallback: string): string {
   try {
     const db = getDb();
