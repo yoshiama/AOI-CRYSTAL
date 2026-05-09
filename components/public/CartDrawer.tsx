@@ -6,7 +6,7 @@ export default function CartDrawer() {
   const { items, remove, updateQty, total, setOpen } = useCart();
   const router = useRouter();
 
-  const shipping = total >= 15 ? 0 : total === 0 ? 0 : 3;
+  const shipping = total >= 30 ? 0 : total === 0 ? 0 : 3;
   const finalTotal = total + shipping;
 
   return (
@@ -58,8 +58,8 @@ export default function CartDrawer() {
                 <span>Envío (peninsular)</span>
                 <span>{shipping === 0 ? <span className="text-green-600">Gratis 🎉</span> : `€${shipping.toFixed(2)}`}</span>
               </div>
-              {total > 0 && total < 15 && (
-                <p className="text-xs text-pink-500">A €{(15 - total).toFixed(2)} del envío gratis</p>
+              {total > 0 && total < 30 && (
+                <p className="text-xs text-pink-500">A €{(30 - total).toFixed(2)} del envío gratis</p>
               )}
             </div>
             <div className="flex justify-between font-bold text-base">

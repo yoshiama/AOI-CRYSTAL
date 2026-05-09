@@ -163,7 +163,7 @@ export default function ProductoPage() {
             </button>
 
             <div className="bg-purple-50 rounded-xl p-4 text-sm text-gray-600 space-y-1">
-              <p>🚚 Envío gratuito desde €15 (peninsular)</p>
+              <p>🚚 Envío gratuito desde €30 (peninsular)</p>
               <p>💜 Hecho a mano con mucho cariño</p>
               <p>✨ Personalizado especialmente para ti</p>
             </div>

@@ -39,5 +39,5 @@ export function calcShipping(postal: string, subtotal: number): { zone: Checkout
   if ([7].includes(code)) {
     return { zone: 'baleares', shipping: subtotal >= 25 ? 0 : 5 };
   }
-  return { zone: 'peninsular', shipping: subtotal >= 15 ? 0 : 3 };
+  return { zone: 'peninsular', shipping: subtotal >= 30 ? 0 : 3 };
 }

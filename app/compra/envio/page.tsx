@@ -5,7 +5,7 @@ import { useCart } from '@/components/CartContext';
 
 const ZONE_LABELS = { peninsular: 'España Peninsular', baleares: 'Baleares', canarias: 'Canarias' };
 const ZONE_RULES = {
-  peninsular: '3€ · Gratis desde €15',
+  peninsular: '3€ · Gratis desde €30',
   baleares: '5€ · Gratis desde €25',
   canarias: '6€ · Gratis desde €25',
 };
