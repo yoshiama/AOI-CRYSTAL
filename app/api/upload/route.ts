@@ -16,11 +16,12 @@ export async function POST(request: NextRequest) {
 
   const ext = path.extname(file.name) || '.jpg';
   const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-  const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+
+  // Save to Volume (data/uploads/) so it persists across Railway deploys
+  const uploadDir = path.join(process.cwd(), 'data', 'uploads');
   if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
-  const filePath = path.join(uploadDir, filename);
-  fs.writeFileSync(filePath, buffer);
+  fs.writeFileSync(path.join(uploadDir, filename), buffer);
 
-  return NextResponse.json({ url: `/uploads/${filename}` });
+  return NextResponse.json({ url: `/api/upload/${filename}` });
 }
