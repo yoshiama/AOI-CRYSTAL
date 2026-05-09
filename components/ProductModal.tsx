@@ -168,13 +168,19 @@ export default function ProductModal({ product, onClose, onSave }: {
                 <input ref={fileRef} type="file" multiple accept="image/*" className="hidden" onChange={e => e.target.files && handleFiles(e.target.files)} />
               </div>
               {photos.length > 0 && (
-                <div className="flex gap-2 mt-2 flex-wrap">
+                <div className="flex gap-3 mt-3 flex-wrap">
                   {photos.map((url, i) => (
-                    <div key={i} className="relative group">
-                      <img src={url} alt="" className="w-16 h-16 rounded-lg object-cover" />
-                      <button onClick={() => removePhoto(i)} className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition">✕</button>
-                      {i > 0 && <button onClick={() => movePhoto(i, i - 1)} className="absolute bottom-0 left-0 bg-black/50 text-white text-xs px-1 rounded opacity-0 group-hover:opacity-100 transition">←</button>}
-                      {i < photos.length - 1 && <button onClick={() => movePhoto(i, i + 1)} className="absolute bottom-0 right-0 bg-black/50 text-white text-xs px-1 rounded opacity-0 group-hover:opacity-100 transition">→</button>}
+                    <div key={i} className="relative">
+                      <img src={url} alt="" className="w-20 h-20 rounded-xl object-cover" />
+                      <button
+                        onClick={() => removePhoto(i)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-xs flex items-center justify-center shadow-md hover:bg-red-600 transition font-bold"
+                        title="Eliminar foto"
+                      >✕</button>
+                      <div className="flex gap-1 mt-1 justify-center">
+                        {i > 0 && <button onClick={() => movePhoto(i, i - 1)} className="bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded transition">←</button>}
+                        {i < photos.length - 1 && <button onClick={() => movePhoto(i, i + 1)} className="bg-gray-100 hover:bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded transition">→</button>}
+                      </div>
                     </div>
                   ))}
                 </div>
