@@ -53,7 +53,7 @@ export default function DashboardPage() {
     <PanelLayout>
       <div className="space-y-6">
         {/* Stat cards */}
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <StatCard icon="🛍️" label="Pedidos hoy" value={String(data.ordersToday)} />
           <StatCard
             icon="⏳"
@@ -72,9 +72,9 @@ export default function DashboardPage() {
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Sales chart */}
-          <div className="col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
+          <div className="md:col-span-2 bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
             <h3 className="font-semibold text-gray-800 mb-4">Ventas últimos 7 días</h3>
             <div className="flex items-end gap-2 h-32">
               {data.sales7days.map((d, i) => (
@@ -112,7 +112,25 @@ export default function DashboardPage() {
             <h3 className="font-semibold text-gray-800">Últimos pedidos</h3>
             <Link href="/equipo/pedidos" className="text-sm text-purple-600 hover:underline">Ver todos →</Link>
           </div>
-          <table className="w-full text-sm">
+          {/* Mobile cards */}
+          <div className="md:hidden divide-y divide-gray-50">
+            {data.recentOrders.length === 0 ? (
+              <div className="px-5 py-8 text-center text-gray-400 text-sm">Sin pedidos aún</div>
+            ) : data.recentOrders.map(o => (
+              <div key={o.id} className="px-4 py-3 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="font-medium text-gray-800 text-sm truncate">{o.customer_name}</div>
+                  <div className="text-xs text-gray-400 font-mono">{o.order_number}</div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="font-semibold text-sm">€{o.total.toFixed(2)}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[o.status] || ''}`}>{o.status}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          {/* Desktop table */}
+          <table className="hidden md:table w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
                 <th className="text-left px-5 py-3 text-gray-500 font-medium">Pedido</th>

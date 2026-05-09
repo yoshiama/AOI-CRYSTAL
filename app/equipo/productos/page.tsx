@@ -53,19 +53,19 @@ export default function ProductosPage() {
     <PanelLayout>
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
             <input
               type="text"
               placeholder="Buscar producto..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 w-56"
+              className="border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 w-full sm:w-48"
             />
             <select
               value={filterCat}
               onChange={e => setFilterCat(e.target.value)}
-              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+              className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 w-full sm:w-auto"
             >
               <option value="">Todas las categorías</option>
               {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
@@ -73,14 +73,46 @@ export default function ProductosPage() {
           </div>
           <button
             onClick={() => { setEditProduct(null); setShowModal(true); }}
-            className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:opacity-90 transition"
+            className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:opacity-90 transition w-full sm:w-auto"
           >
             + Añadir producto
           </button>
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {loading ? (
+            <div className="text-center py-8 text-gray-400 text-sm">Cargando...</div>
+          ) : filtered.length === 0 ? (
+            <div className="text-center py-8 text-gray-400 text-sm">Sin productos</div>
+          ) : filtered.map(p => {
+            const photos = JSON.parse(p.photos || '[]');
+            return (
+              <div key={p.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-4">
+                {photos[0] ? (
+                  <img src={photos[0]} alt={p.name} className="w-14 h-14 rounded-xl object-cover shrink-0" />
+                ) : (
+                  <div className="w-14 h-14 rounded-xl bg-purple-50 flex items-center justify-center text-2xl shrink-0">💎</div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-gray-800 text-sm truncate">{p.name}</div>
+                  <div className="text-xs text-gray-400 capitalize">{p.category} · €{p.price.toFixed(2)}</div>
+                  <div className="flex gap-2 mt-2">
+                    <button
+                      onClick={() => toggleVisible(p)}
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium transition ${p.visible ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}
+                    >{p.visible ? '👁️ Visible' : '🙈 Oculto'}</button>
+                    <button onClick={() => { setEditProduct(p); setShowModal(true); }} className="text-purple-600 text-xs font-medium px-2 py-0.5 rounded-full bg-purple-50">Editar</button>
+                    <button onClick={() => setConfirmDelete(p.id)} className="text-red-500 text-xs font-medium px-2 py-0.5 rounded-full bg-red-50">Eliminar</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
@@ -115,20 +147,12 @@ export default function ProductosPage() {
                       <button
                         onClick={() => toggleVisible(p)}
                         className={`px-3 py-1 rounded-full text-xs font-medium transition ${p.visible ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}
-                      >
-                        {p.visible ? '👁️ Visible' : '🙈 Oculto'}
-                      </button>
+                      >{p.visible ? '👁️ Visible' : '🙈 Oculto'}</button>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
-                        <button
-                          onClick={() => { setEditProduct(p); setShowModal(true); }}
-                          className="text-purple-600 hover:text-purple-800 text-xs font-medium px-2 py-1 rounded-lg hover:bg-purple-50"
-                        >Editar</button>
-                        <button
-                          onClick={() => setConfirmDelete(p.id)}
-                          className="text-red-500 hover:text-red-700 text-xs font-medium px-2 py-1 rounded-lg hover:bg-red-50"
-                        >Eliminar</button>
+                        <button onClick={() => { setEditProduct(p); setShowModal(true); }} className="text-purple-600 hover:text-purple-800 text-xs font-medium px-2 py-1 rounded-lg hover:bg-purple-50">Editar</button>
+                        <button onClick={() => setConfirmDelete(p.id)} className="text-red-500 hover:text-red-700 text-xs font-medium px-2 py-1 rounded-lg hover:bg-red-50">Eliminar</button>
                       </div>
                     </td>
                   </tr>

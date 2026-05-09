@@ -66,16 +66,16 @@ export default function PedidosPage() {
     <PanelLayout>
       <div className="space-y-4">
         {/* Filters */}
-        <div className="flex items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
             <input
               type="text"
               placeholder="Buscar por nombre o nº pedido..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 w-64"
+              className="border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300 w-full sm:w-56"
             />
-            <div className="flex gap-1">
+            <div className="flex gap-1 flex-wrap">
               {['todos', 'pendiente', 'confirmado', 'enviado', 'cancelado'].map(s => (
                 <button
                   key={s}
@@ -89,12 +89,47 @@ export default function PedidosPage() {
           </div>
           <button
             onClick={() => setShowNew(true)}
-            className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:opacity-90 transition"
+            className="bg-gradient-to-r from-purple-600 to-pink-500 text-white px-4 py-2 rounded-xl text-sm font-medium hover:opacity-90 transition w-full sm:w-auto"
           >+ Nuevo pedido</button>
         </div>
 
-        {/* Table */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {loading ? (
+            <div className="text-center py-8 text-gray-400 text-sm">Cargando...</div>
+          ) : orders.length === 0 ? (
+            <div className="text-center py-8 text-gray-400 text-sm">Sin pedidos</div>
+          ) : orders.map(o => {
+            const items = JSON.parse(o.items || '[]');
+            return (
+              <div
+                key={o.id}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 cursor-pointer active:bg-gray-50"
+                onClick={() => setSelectedOrder(o)}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <div className="font-semibold text-gray-800">{o.customer_name}</div>
+                    <div className="text-xs font-mono text-purple-600">{o.order_number}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-gray-900">€{o.total.toFixed(2)}</div>
+                    <div className="text-xs text-gray-400">{new Date(o.created_at * 1000).toLocaleDateString('es-ES')}</div>
+                  </div>
+                </div>
+                <div className="text-xs text-gray-500 truncate mb-2">{items.map((i: { name: string }) => i.name).join(', ') || '-'}</div>
+                <div className="flex items-center gap-2">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[o.status] || ''}`}>{o.status}</span>
+                  {o.bizum_screenshot && <span className="text-green-600 text-xs">✓ Bizum</span>}
+                  {noteValues[o.id] && <span className="text-yellow-600 text-xs">📝 Nota</span>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
@@ -135,10 +170,7 @@ export default function PedidosPage() {
                     <td className="px-4 py-3">
                       {o.bizum_screenshot ? <span className="text-green-600 text-xs">✓ Adjunto</span> : <span className="text-gray-300 text-xs">—</span>}
                     </td>
-                    <td
-                      className="px-3 py-2 w-52"
-                      onClick={e => e.stopPropagation()}
-                    >
+                    <td className="px-3 py-2 w-52" onClick={e => e.stopPropagation()}>
                       {isEditingThisNote ? (
                         <textarea
                           ref={noteRef}
