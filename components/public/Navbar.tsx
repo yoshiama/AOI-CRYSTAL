@@ -27,6 +27,7 @@ export default function Navbar() {
           </Link>
           <div className="flex items-center gap-6 text-sm font-medium text-gray-600">
             <Link href="/catalogo" className="hover:text-purple-600 transition">Catálogo</Link>
+            <Link href="/galeria" className="hover:text-purple-600 transition">Galería</Link>
             <Link href="/sobre-nosotras" className="hover:text-purple-600 transition">Sobre nosotras</Link>
             <Link href="/contacto" className="hover:text-purple-600 transition">Contacto</Link>
             <button

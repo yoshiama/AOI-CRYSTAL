@@ -103,6 +103,14 @@ function initDb(db: Database.Database) {
       expense_date INTEGER DEFAULT (strftime('%s','now')),
       created_at INTEGER DEFAULT (strftime('%s','now'))
     );
+
+    CREATE TABLE IF NOT EXISTS gallery (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      filename TEXT NOT NULL,
+      caption TEXT DEFAULT '',
+      sort_order INTEGER DEFAULT 0,
+      created_at INTEGER DEFAULT (strftime('%s','now'))
+    );
   `);
 
   // Seed default settings if not exists

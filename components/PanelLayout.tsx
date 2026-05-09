@@ -63,6 +63,7 @@ export default function PanelLayout({ children }: { children: React.ReactNode })
     { href: '/equipo/productos', label: 'Productos', icon: '💎' },
     { href: '/equipo/pedidos', label: 'Pedidos', icon: '📦' },
     { href: '/equipo/finanzas', label: 'Finanzas', icon: '💰' },
+    { href: '/equipo/galeria', label: 'Galería', icon: '🖼️' },
     { href: '/equipo/configuracion', label: 'Configuración', icon: '⚙️' },
   ];
 

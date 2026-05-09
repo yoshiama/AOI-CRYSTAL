@@ -11,6 +11,9 @@ export default function Home() {
   }>;
   const instagramRow = db.prepare("SELECT value FROM settings WHERE key = 'contact_instagram'").get() as { value: string } | undefined;
   const instagram = instagramRow?.value || 'aoicrystal';
+  const galleryPreview = db.prepare('SELECT * FROM gallery ORDER BY sort_order ASC, created_at DESC LIMIT 6').all() as Array<{
+    id: number; filename: string; caption: string;
+  }>;
 
   return (
     <PublicLayout>
@@ -66,6 +69,35 @@ export default function Home() {
           <Link href="/catalogo" className="text-purple-600 font-medium hover:underline">Ver todos los productos →</Link>
         </div>
       </section>
+
+      {/* Gallery preview */}
+      {galleryPreview.length > 0 && (
+        <section className="max-w-6xl mx-auto px-6 py-16">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-gray-800 mb-2">Ejemplos de nuestro trabajo</h2>
+            <p className="text-gray-400">Piezas únicas, hechas a mano con mucho amor</p>
+          </div>
+          <div className="columns-2 md:columns-3 gap-4 space-y-4">
+            {galleryPreview.map(item => (
+              <div key={item.id} className="break-inside-avoid bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <img
+                  src={`/api/gallery/photo/${item.filename}`}
+                  alt={item.caption || 'Ejemplo AOI Crystal'}
+                  className="w-full object-cover"
+                />
+                {item.caption && (
+                  <div className="px-4 py-3">
+                    <p className="text-xs text-gray-400 text-center">{item.caption}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="text-center mt-8">
+            <Link href="/galeria" className="text-purple-600 font-medium hover:underline">Ver toda la galería →</Link>
+          </div>
+        </section>
+      )}
 
       {/* About snippet */}
       <section className="bg-gradient-to-r from-purple-50 to-pink-50 py-16 px-6">
