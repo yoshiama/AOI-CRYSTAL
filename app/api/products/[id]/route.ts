@@ -21,7 +21,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   const now = Math.floor(Date.now() / 1000);
 
   db.prepare(`
-    UPDATE products SET name=?, category=?, description=?, price=?, photos=?, colors=?, finishes=?, custom_text=?, visible=?, updated_at=?
+    UPDATE products SET name=?, category=?, description=?, price=?, photos=?, colors=?, finishes=?, custom_text=?, visible=?, product_type=?, updated_at=?
     WHERE id=?
   `).run(
     data.name, data.category, data.description || '', data.price,
@@ -30,6 +30,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
     JSON.stringify(data.finishes || []),
     data.custom_text || '',
     data.visible ? 1 : 0,
+    data.product_type || 'standard',
     now, id
   );
 

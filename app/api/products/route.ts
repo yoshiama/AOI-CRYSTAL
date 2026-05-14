@@ -18,15 +18,16 @@ export async function POST(request: NextRequest) {
   const data = await request.json();
   const db = getDb();
   const result = db.prepare(`
-    INSERT INTO products (name, category, description, price, photos, colors, finishes, custom_text, visible)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO products (name, category, description, price, photos, colors, finishes, custom_text, visible, product_type)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     data.name, data.category, data.description || '', data.price,
     JSON.stringify(data.photos || []),
     JSON.stringify(data.colors || []),
     JSON.stringify(data.finishes || []),
     data.custom_text || '',
-    data.visible ? 1 : 0
+    data.visible ? 1 : 0,
+    data.product_type || 'standard'
   );
 
   logActivity('Producto creado', 'products', result.lastInsertRowid as number, data.name);

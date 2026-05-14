@@ -113,6 +113,13 @@ function initDb(db: Database.Database) {
     );
   `);
 
+  // Add product_type column if it doesn't exist yet (safe migration)
+  try {
+    db.exec(`ALTER TABLE products ADD COLUMN product_type TEXT DEFAULT 'standard'`);
+  } catch {
+    // Column already exists — ignore
+  }
+
   // Seed default settings if not exists
   const settingsCount = (db.prepare('SELECT COUNT(*) as c FROM settings').get() as { c: number }).c;
   if (settingsCount === 0) {
@@ -151,6 +158,24 @@ function initDb(db: Database.Database) {
     ins.run('Pendiente grande', 'pendiente', 'Pendientes grandes de resina artesana, llamativos y únicos.', 8, '[]', '["rosa","morado","azul","dorado","plateado"]', '["brillo","mate","purpurina"]', 'Indica el modelo o colores preferidos', 1);
     ins.run('Pendiente mediano', 'pendiente', 'Pendientes medianos de resina, perfectos para el día a día.', 8, '[]', '["rosa","morado","azul","dorado","plateado"]', '["brillo","mate","purpurina"]', 'Indica el modelo o colores preferidos', 1);
     ins.run('Llavero portafoto', 'llavero', 'Llavero con portafoto personalizado. Envíanos la foto que quieras incluir y nosotras lo hacemos.', 12, '[]', '["transparente","rosa","morado"]', '["brillo","mate"]', 'Envíanos tu foto a aoicrystalor@gmail.com indicando el número de pedido', 1);
+  }
+
+  // Seed "Llavero de iniciales" if not already present
+  const inicialesExists = db.prepare(`SELECT id FROM products WHERE name = 'Llavero de iniciales'`).get();
+  if (!inicialesExists) {
+    db.prepare(`INSERT INTO products (name, category, description, price, photos, colors, finishes, custom_text, visible, product_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run(
+        'Llavero de iniciales',
+        'llavero',
+        'Llavero de resina artesanal con 1, 2 o 3 iniciales juntas. Elige el número de iniciales y el color de cada una de forma independiente.',
+        4,
+        '[]',
+        '[]',
+        '[]',
+        '',
+        1,
+        'iniciales'
+      );
   }
 }
 
