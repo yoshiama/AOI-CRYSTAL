@@ -11,6 +11,10 @@ interface Expense {
   id: number; description: string; amount: number; category: string; expense_date: number;
 }
 
+interface SalaryPayment {
+  id: number; amount: number; recipient: string; note: string; paid_at: number;
+}
+
 interface Totals {
   today: { revenue: number; cost: number; profit: number };
   week: { revenue: number; cost: number; profit: number };
@@ -28,26 +32,39 @@ export default function FinanzasPage() {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [splitEmployees, setSplitEmployees] = useState(70);
   const [splitCompany, setSplitCompany] = useState(30);
+  const [salaryPayments, setSalaryPayments] = useState<SalaryPayment[]>([]);
+  const [totalSalaryPaid, setTotalSalaryPaid] = useState(0);
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
   const [editCost, setEditCost] = useState<{ id: number; val: string } | null>(null);
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [newExpense, setNewExpense] = useState({ description: '', amount: '', category: 'material', expense_date: new Date().toISOString().slice(0, 10) });
   const [savingExpense, setSavingExpense] = useState(false);
+  const [showAddSalary, setShowAddSalary] = useState(false);
+  const [newSalary, setNewSalary] = useState({ amount: '', recipient: 'empleadas', note: '', paid_at: new Date().toISOString().slice(0, 10) });
+  const [savingSalary, setSavingSalary] = useState(false);
 
   useEffect(() => { fetchData(); }, []);
 
   async function fetchData() {
     setLoading(true);
-    const res = await fetch('/api/finances');
-    if (res.ok) {
-      const data = await res.json();
+    const [finRes, salRes] = await Promise.all([
+      fetch('/api/finances'),
+      fetch('/api/salary-payments'),
+    ]);
+    if (finRes.ok) {
+      const data = await finRes.json();
       setOrders(data.orders);
       setTotals(data.totals);
       setExpenses(data.expenses || []);
       setTotalExpenses(data.totalExpenses || 0);
       setSplitEmployees(data.splitEmployees ?? 70);
       setSplitCompany(data.splitCompany ?? 30);
+    }
+    if (salRes.ok) {
+      const payments: SalaryPayment[] = await salRes.json();
+      setSalaryPayments(payments);
+      setTotalSalaryPaid(payments.reduce((s, p) => s + p.amount, 0));
     }
     setLoading(false);
   }
@@ -81,6 +98,26 @@ export default function FinanzasPage() {
     fetchData();
   }
 
+  async function addSalary() {
+    if (!newSalary.amount) return;
+    setSavingSalary(true);
+    await fetch('/api/salary-payments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...newSalary, amount: parseFloat(newSalary.amount) }),
+    });
+    setSavingSalary(false);
+    setShowAddSalary(false);
+    setNewSalary({ amount: '', recipient: 'empleadas', note: '', paid_at: new Date().toISOString().slice(0, 10) });
+    fetchData();
+  }
+
+  async function deleteSalary(id: number) {
+    if (!confirm('¿Eliminar este pago de nómina del registro?')) return;
+    await fetch(`/api/salary-payments/${id}`, { method: 'DELETE' });
+    fetchData();
+  }
+
   async function handleExport() {
     setExporting(true);
     const res = await fetch('/api/finances/export');
@@ -98,6 +135,7 @@ export default function FinanzasPage() {
   const forEmployees = grossProfit * (splitEmployees / 100);
   const forCompanyGross = grossProfit * (splitCompany / 100);
   const forCompanyNet = forCompanyGross - totalExpenses;
+  const salaryRemaining = forEmployees - totalSalaryPaid;
 
   return (
     <PanelLayout>
@@ -136,10 +174,23 @@ export default function FinanzasPage() {
 
             <div className="grid grid-cols-2 gap-4">
               {/* Empleadas */}
-              <div className="bg-purple-50 rounded-2xl p-5 border border-purple-100">
-                <div className="text-xs font-semibold text-purple-500 uppercase tracking-wide mb-3">{splitEmployees}% Empleadas</div>
-                <div className="text-3xl font-bold text-purple-700 mb-1">€{forEmployees.toFixed(2)}</div>
-                <div className="text-sm text-purple-400">€{(forEmployees / 2).toFixed(2)} por persona</div>
+              <div className="bg-purple-50 rounded-2xl p-5 border border-purple-100 space-y-2">
+                <div className="text-xs font-semibold text-purple-500 uppercase tracking-wide">{splitEmployees}% Empleadas</div>
+                <div className="flex justify-between text-sm text-purple-700">
+                  <span>Total generado</span>
+                  <span className="font-semibold">€{forEmployees.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm text-pink-600">
+                  <span>— Nóminas pagadas</span>
+                  <span className="font-semibold">€{totalSalaryPaid.toFixed(2)}</span>
+                </div>
+                <div className="border-t border-purple-200 pt-2 flex justify-between">
+                  <span className="font-bold text-purple-800">Pendiente de pagar</span>
+                  <span className={`font-bold text-xl ${salaryRemaining >= 0 ? 'text-purple-700' : 'text-red-500'}`}>
+                    €{salaryRemaining.toFixed(2)}
+                  </span>
+                </div>
+                <div className="text-xs text-purple-400 pt-1">≈ €{(salaryRemaining / 2).toFixed(2)} por persona</div>
               </div>
 
               {/* Empresa */}
@@ -240,6 +291,114 @@ export default function FinanzasPage() {
                   <td className="px-4 py-3 font-medium text-orange-600">€{e.amount.toFixed(2)}</td>
                   <td className="px-4 py-3">
                     <button onClick={() => deleteExpense(e.id)} className="text-red-400 hover:text-red-600 text-xs">✕</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Salary payments */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+            <div>
+              <h3 className="font-semibold text-gray-800">Nóminas pagadas</h3>
+              <p className="text-xs text-gray-400 mt-0.5">
+                Total: <span className="font-medium text-pink-600">€{totalSalaryPaid.toFixed(2)}</span>
+                <span className="mx-2">·</span>
+                Pendiente: <span className={`font-medium ${salaryRemaining >= 0 ? 'text-purple-600' : 'text-red-500'}`}>€{salaryRemaining.toFixed(2)}</span>
+              </p>
+            </div>
+            <button
+              onClick={() => setShowAddSalary(true)}
+              className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-purple-700 transition"
+            >+ Registrar pago</button>
+          </div>
+
+          {showAddSalary && (
+            <div className="px-5 py-4 bg-purple-50 border-b border-purple-100">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <input
+                  type="number" placeholder="Importe €" step="0.01"
+                  value={newSalary.amount}
+                  onChange={e => setNewSalary(p => ({ ...p, amount: e.target.value }))}
+                  className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+                />
+                <select
+                  value={newSalary.recipient}
+                  onChange={e => setNewSalary(p => ({ ...p, recipient: e.target.value }))}
+                  className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+                >
+                  <option value="empleadas">Ambas empleadas</option>
+                  <option value="persona 1">Persona 1</option>
+                  <option value="persona 2">Persona 2</option>
+                </select>
+                <input
+                  placeholder="Nota (opcional)"
+                  value={newSalary.note}
+                  onChange={e => setNewSalary(p => ({ ...p, note: e.target.value }))}
+                  className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+                />
+                <input
+                  type="date"
+                  value={newSalary.paid_at}
+                  onChange={e => setNewSalary(p => ({ ...p, paid_at: e.target.value }))}
+                  className="border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-purple-300"
+                />
+              </div>
+              <div className="flex gap-2 mt-3">
+                <button onClick={addSalary} disabled={savingSalary || !newSalary.amount} className="px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-medium hover:bg-purple-700 disabled:opacity-50">
+                  {savingSalary ? 'Guardando...' : 'Guardar'}
+                </button>
+                <button onClick={() => setShowAddSalary(false)} className="px-4 py-2 border border-gray-200 rounded-xl text-sm hover:bg-gray-50">Cancelar</button>
+              </div>
+            </div>
+          )}
+
+          {/* Mobile cards */}
+          <div className="md:hidden divide-y divide-gray-50">
+            {loading ? (
+              <div className="px-5 py-8 text-center text-gray-400 text-sm">Cargando...</div>
+            ) : salaryPayments.length === 0 ? (
+              <div className="px-5 py-8 text-center text-gray-400 text-sm">Sin pagos registrados</div>
+            ) : salaryPayments.map(p => (
+              <div key={p.id} className="px-4 py-3 flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-gray-800 text-sm">{p.recipient}</div>
+                  <div className="text-xs text-gray-400">{new Date(p.paid_at * 1000).toLocaleDateString('es-ES')}{p.note && ` · ${p.note}`}</div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="font-bold text-pink-600">€{p.amount.toFixed(2)}</span>
+                  <button onClick={() => deleteSalary(p.id)} className="text-red-400 hover:text-red-600 text-sm">✕</button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <table className="hidden md:table w-full text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="text-left px-4 py-3 text-gray-500 font-medium">Fecha</th>
+                <th className="text-left px-4 py-3 text-gray-500 font-medium">Destinataria</th>
+                <th className="text-left px-4 py-3 text-gray-500 font-medium">Nota</th>
+                <th className="text-left px-4 py-3 text-gray-500 font-medium">Importe</th>
+                <th className="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Cargando...</td></tr>
+              ) : salaryPayments.length === 0 ? (
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Sin pagos registrados aún</td></tr>
+              ) : salaryPayments.map(p => (
+                <tr key={p.id} className="border-t border-gray-50 hover:bg-gray-50">
+                  <td className="px-4 py-3 text-gray-500">{new Date(p.paid_at * 1000).toLocaleDateString('es-ES')}</td>
+                  <td className="px-4 py-3 font-medium text-gray-800 capitalize">{p.recipient}</td>
+                  <td className="px-4 py-3 text-gray-500">{p.note || '—'}</td>
+                  <td className="px-4 py-3 font-bold text-pink-600">€{p.amount.toFixed(2)}</td>
+                  <td className="px-4 py-3">
+                    <button onClick={() => deleteSalary(p.id)} className="text-red-400 hover:text-red-600 text-xs">✕</button>
                   </td>
                 </tr>
               ))}

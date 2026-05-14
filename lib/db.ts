@@ -104,6 +104,15 @@ function initDb(db: Database.Database) {
       created_at INTEGER DEFAULT (strftime('%s','now'))
     );
 
+    CREATE TABLE IF NOT EXISTS salary_payments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      amount REAL NOT NULL,
+      recipient TEXT DEFAULT 'empleadas',
+      note TEXT DEFAULT '',
+      paid_at INTEGER DEFAULT (strftime('%s','now')),
+      created_at INTEGER DEFAULT (strftime('%s','now'))
+    );
+
     CREATE TABLE IF NOT EXISTS gallery (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       filename TEXT NOT NULL,
