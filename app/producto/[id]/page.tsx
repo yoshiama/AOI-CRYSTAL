@@ -15,12 +15,20 @@ const INICIAL_COLORS = [
   { value: 'blanco', label: 'Blanco', hex: '#ffffff', border: true },
   { value: 'transparente', label: 'Transparente', hex: 'transparent', border: true },
   { value: 'rosa', label: 'Rosa', hex: '#f9a8d4' },
-  { value: 'morado', label: 'Morado', hex: '#a855f7' },
-  { value: 'azul', label: 'Azul', hex: '#60a5fa' },
-  { value: 'verde', label: 'Verde', hex: '#4ade80' },
+  { value: 'fucsia', label: 'Fucsia', hex: '#ec4899' },
+  { value: 'rojo', label: 'Rojo', hex: '#ef4444' },
+  { value: 'burdeos', label: 'Burdeos', hex: '#7f1d1d' },
+  { value: 'naranja', label: 'Naranja', hex: '#fb923c' },
   { value: 'amarillo', label: 'Amarillo', hex: '#fde047' },
-  { value: 'rojo', label: 'Rojo', hex: '#f87171' },
+  { value: 'verde', label: 'Verde', hex: '#4ade80' },
+  { value: 'verde oscuro', label: 'Verde oscuro', hex: '#14532d' },
+  { value: 'azul', label: 'Azul', hex: '#60a5fa' },
+  { value: 'azul marino', label: 'Azul marino', hex: '#1e3a8a' },
+  { value: 'morado', label: 'Morado', hex: '#a855f7' },
+  { value: 'morado oscuro', label: 'Morado oscuro', hex: '#4c1d95' },
   { value: 'negro', label: 'Negro', hex: '#1f2937' },
+  { value: 'plateado', label: 'Plateado', hex: 'linear-gradient(135deg, #e8e8e8, #a0a0a0, #e8e8e8)' },
+  { value: 'dorado', label: 'Dorado', hex: 'linear-gradient(135deg, #ffd700, #b8860b, #ffd700)' },
 ];
 
 function InicialSelector({ index, letra, color, onLetra, onColor }: {
@@ -56,6 +64,10 @@ function InicialSelector({ index, letra, color, onLetra, onColor }: {
               style={{
                 background: c.value === 'transparente'
                   ? 'repeating-linear-gradient(45deg, #e5e7eb 0, #e5e7eb 3px, white 3px, white 6px)'
+                  : c.value === 'plateado'
+                  ? 'linear-gradient(135deg, #e8e8e8, #a0a0a0, #e8e8e8)'
+                  : c.value === 'dorado'
+                  ? 'linear-gradient(135deg, #ffd700, #b8860b, #ffd700)'
                   : c.hex,
               }}
             />
