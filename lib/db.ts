@@ -185,6 +185,9 @@ function initDb(db: Database.Database) {
         1,
         'iniciales'
       );
+  } else {
+    // Ensure product_type is set correctly (fix for existing products created before this column)
+    db.prepare(`UPDATE products SET product_type = 'iniciales' WHERE name = 'Llavero de iniciales' AND (product_type IS NULL OR product_type = 'standard')`).run();
   }
 }
 
